@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Handmade TODO App</title>
   <style>
-    /* RESET RULES */
     @font-face {
       font-family: "Summer";
       src: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/Summer%20Font%20Regular.woff);
@@ -24,181 +23,122 @@
     * {
       padding: 0;
       margin: 0;
-      border: none;
-      outline: none;
       box-sizing: border-box;
     }
 
     body {
-      font: 28px/1.2 "Summer Bold";
-      margin: 1.5rem 0;
+      font: 22px/1.2 "Summer Bold";
+      background: #f9f9f9;
+      color: #333;
+      padding: 1.5rem 0;
     }
 
     .container {
       max-width: 700px;
-      padding: 0 10px;
       margin: 0 auto;
+      padding: 0 10px;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
+      font-size: 36px;
     }
 
-    .todo-form .form-wrapper,
-    .todo-form input,
-    .todo-form button,
-    .todo-stats,
-    .todo-stats > div {
-      position: relative;
+    .todo-form {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
     }
 
-    .todo-form input,
-    .todo-form button,
-    .todo-stats > div {
-      z-index: 1;
-    }
-
-    .todo-form input,
-    .todo-form button {
-      width: 100%;
-      padding: 15px;
-    }
-
-    .todo-form svg,
-    .todo-stats svg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+    .todo-form input {
+      padding: 10px 15px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
 
     .todo-form button {
+      padding: 10px 15px;
+      background: var(--red);
       color: var(--white);
+      font-size: 16px;
+      border-radius: 5px;
       text-transform: uppercase;
+      border: none;
     }
 
     .todo-stats {
-      text-align: center;
-      padding: 5px 10px;
-      margin: 10px 0;
-      color: var(--white);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      background: var(--red);
+      color: white;
+      border-radius: 5px;
+      margin-bottom: 20px;
     }
 
     .todo-list li {
-      display: grid;
-      align-items: baseline;
-      grid-template-columns: auto 20px;
-      grid-column-gap: 10px;
-      padding: 0 10px;
-    }
-
-    .todo-list li + li {
-      margin-top: 10px;
-    }
-
-    .todo-list .checkbox-wrapper {
       display: flex;
-      align-items: baseline;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      background: white;
     }
 
-    .todo-list .checkbox-wrapper label {
-      display: grid;
-      margin-right: 10px;
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .todo-list .checkbox-wrapper svg {
-      grid-column: 1;
-      grid-row: 1;
-      width: 20px;
-      height: 20px;
+    .checkbox-wrapper input[type="checkbox"] {
+      transform: scale(1.3);
     }
 
-    .todo-list .checkbox-wrapper .checkmark {
-      display: none;
+    .checkbox-wrapper span {
+      font-size: 18px;
     }
 
-    .todo-list [type="checkbox"]:checked + label .checkmark {
-      display: block;
+    .checkbox-wrapper span[contenteditable] {
+      border-bottom: 1px dashed #aaa;
+      padding: 2px;
+    }
+
+    .remove-task {
+      background: none;
+      border: none;
+      color: red;
+      font-size: 18px;
+      cursor: pointer;
     }
 
     .todo-list [type="checkbox"]:checked ~ span {
       text-decoration: line-through;
       opacity: 0.5;
     }
-
-    .todo-list .remove-task {
-      display: flex;
-      padding: 2px;
-    }
-
-    .todo-list .remove-task svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    @media screen and (min-width: 600px) {
-      .todo-form {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        grid-column-gap: 5px;
-      }
-
-      .todo-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
   </style>
 </head>
 <body>
-  <svg style="display: none;">
-    <symbol id="button" viewBox="0 0 315 120">
-      <path d="M...Z" fill="var(--red)" />
-    </symbol>
-    <symbol id="stat" viewBox="0 0 315 50">
-      <path d="M...Z" fill="var(--red)" />
-    </symbol>
-    <symbol id="checkbox_empty" viewBox="0 0 50 50">
-      <circle cx="25" cy="25" r="25" fill="#fff" stroke="#000" stroke-width="3"/>
-    </symbol>
-    <symbol id="checkmark" viewBox="0 0 50 50">
-      <polyline points="12,27 22,37 38,13" fill="none" stroke="#000" stroke-width="4"/>
-    </symbol>
-    <symbol id="close" viewBox="0 0 50 50">
-      <line x1="15" y1="15" x2="35" y2="35" stroke="#000" stroke-width="4"/>
-      <line x1="35" y1="15" x2="15" y2="35" stroke="#000" stroke-width="4"/>
-    </symbol>
-  </svg>
-
   <div class="container">
-    <h1>Handmade TODO App</h1>
+    <h1>📝 Handmade TODO App</h1>
+
     <form class="todo-form">
-      <div class="form-wrapper">
-        <input type="text" name="name" placeholder="What needs to be done?" />
-        <svg><use xlink:href="#button"></use></svg>
-      </div>
-      <button type="submit">
-        Add Task
-        <svg><use xlink:href="#button"></use></svg>
-      </button>
+      <input type="text" name="name" placeholder="Enter a new task" autocomplete="off" />
+      <button type="submit">Add</button>
     </form>
-    <ol class="todo-list"></ol>
+
     <div class="todo-stats">
-      <div class="total-tasks">
-        Total: <span>0</span>
-        <svg><use xlink:href="#stat"></use></svg>
-      </div>
-      <div class="completed-tasks">
-        Completed: <span>0</span>
-        <svg><use xlink:href="#stat"></use></svg>
-      </div>
-      <div class="remaining-tasks">
-        Remaining: <span>0</span>
-        <svg><use xlink:href="#stat"></use></svg>
-      </div>
+      <div class="total-tasks">Total: <span>0</span></div>
+      <div class="completed-tasks">Completed: <span>0</span></div>
+      <div class="remaining-tasks">Remaining: <span>0</span></div>
     </div>
+
+    <ol class="todo-list"></ol>
   </div>
 
   <script>
@@ -209,19 +149,18 @@
     const remainingTasks = document.querySelector(".remaining-tasks span");
     let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-    if (localStorage.getItem("tasks")) {
-      tasks.map((task) => {
-        createTask(task);
-      });
+    if (tasks.length > 0) {
+      tasks.forEach((task) => createTask(task));
     }
 
     todoForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const input = this.name;
-      const inputValue = input.value;
-      if (inputValue != "") {
+      const inputValue = input.value.trim();
+
+      if (inputValue !== "") {
         const task = {
-          id: new Date().getTime(),
+          id: Date.now(),
           name: inputValue,
           isCompleted: false
         };
@@ -236,7 +175,7 @@
     todoList.addEventListener("click", (e) => {
       if (
         e.target.classList.contains("remove-task") ||
-        e.target.parentElement.classList.contains("remove-task")
+        e.target.closest(".remove-task")
       ) {
         const taskId = e.target.closest("li").id;
         removeTask(taskId);
@@ -248,36 +187,22 @@
       updateTask(taskId, e.target);
     });
 
-    todoList.addEventListener("keydown", function (e) {
-      if (e.keyCode === 13) {
-        e.preventDefault();
-      }
+    todoList.addEventListener("change", (e) => {
+      const taskId = e.target.closest("li").id;
+      updateTask(taskId, e.target);
     });
 
     function createTask(task) {
-      const taskEl = document.createElement("li");
-      taskEl.setAttribute("id", task.id);
-      const taskElMarkup = `
+      const li = document.createElement("li");
+      li.setAttribute("id", task.id);
+      li.innerHTML = `
         <div class="checkbox-wrapper">
-          <input type="checkbox" id="${task.name}-${task.id}" name="tasks" ${task.isCompleted ? "checked" : ""}>
-          <label for="${task.name}-${task.id}">
-            <svg class="checkbox-empty">
-              <use xlink:href="#checkbox_empty"></use>
-            </svg>
-            <svg class="checkmark">
-              <use xlink:href="#checkmark"></use>
-            </svg>
-          </label>
-          <span ${!task.isCompleted ? "contenteditable" : ""}>${task.name}</span>
+          <input type="checkbox" ${task.isCompleted ? "checked" : ""}>
+          <span ${!task.isCompleted ? 'contenteditable="true"' : ""}>${task.name}</span>
         </div>
-        <button class="remove-task" title="Remove ${task.name} task">
-          <svg>
-            <use xlink:href="#close"></use>
-          </svg>
-        </button>
+        <button class="remove-task" title="Delete Task">❌</button>
       `;
-      taskEl.innerHTML = taskElMarkup;
-      todoList.appendChild(taskEl);
+      todoList.appendChild(li);
       countTasks();
     }
 
@@ -289,18 +214,16 @@
     }
 
     function updateTask(taskId, el) {
-      const task = tasks.find((task) => task.id === parseInt(taskId));
-      if (el.hasAttribute("contentEditable")) {
+      const task = tasks.find((t) => t.id === parseInt(taskId));
+      if (el.tagName === "SPAN") {
         task.name = el.textContent;
-      } else {
-        const span = el.nextElementSibling.nextElementSibling;
-        task.isCompleted = !task.isCompleted;
+      } else if (el.type === "checkbox") {
+        task.isCompleted = el.checked;
+        const span = el.nextElementSibling;
         if (task.isCompleted) {
           span.removeAttribute("contenteditable");
-          el.setAttribute("checked", "");
         } else {
-          el.removeAttribute("checked");
-          span.setAttribute("contenteditable", "");
+          span.setAttribute("contenteditable", true);
         }
       }
       localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -309,9 +232,9 @@
 
     function countTasks() {
       totalTasks.textContent = tasks.length;
-      const completedTasksArray = tasks.filter((task) => task.isCompleted === true);
-      completedTasks.textContent = completedTasksArray.length;
-      remainingTasks.textContent = tasks.length - completedTasksArray.length;
+      const completed = tasks.filter((t) => t.isCompleted).length;
+      completedTasks.textContent = completed;
+      remainingTasks.textContent = tasks.length - completed;
     }
   </script>
 </body>
