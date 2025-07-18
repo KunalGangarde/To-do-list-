@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Handmade TODO App</title>
+  <style>
+    /* RESET RULES */
+    @font-face {
+      font-family: "Summer";
+      src: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/Summer%20Font%20Regular.woff);
+    }
+
+    @font-face {
+      font-family: "Summer Bold";
+      src: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/Summer%20Font%20Bold.woff);
+    }
+
+    :root {
+      --white: #fff;
+      --red: #e31b23;
+    }
+
+    * {
+      padding: 0;
+      margin: 0;
+      border: none;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 28px/1.2 "Summer Bold";
+      margin: 1.5rem 0;
+    }
+
+    .container {
+      max-width: 700px;
+      padding: 0 10px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .todo-form .form-wrapper,
+    .todo-form input,
+    .todo-form button,
+    .todo-stats,
+    .todo-stats > div {
+      position: relative;
+    }
+
+    .todo-form input,
+    .todo-form button,
+    .todo-stats > div {
+      z-index: 1;
+    }
+
+    .todo-form input,
+    .todo-form button {
+      width: 100%;
+      padding: 15px;
+    }
+
+    .todo-form svg,
+    .todo-stats svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .todo-form button {
+      color: var(--white);
+      text-transform: uppercase;
+    }
+
+    .todo-stats {
+      text-align: center;
+      padding: 5px 10px;
+      margin: 10px 0;
+      color: var(--white);
+    }
+
+    .todo-list li {
+      display: grid;
+      align-items: baseline;
+      grid-template-columns: auto 20px;
+      grid-column-gap: 10px;
+      padding: 0 10px;
+    }
+
+    .todo-list li + li {
+      margin-top: 10px;
+    }
+
+    .todo-list .checkbox-wrapper {
+      display: flex;
+      align-items: baseline;
+    }
+
+    .todo-list .checkbox-wrapper label {
+      display: grid;
+      margin-right: 10px;
+    }
+
+    .todo-list .checkbox-wrapper svg {
+      grid-column: 1;
+      grid-row: 1;
+      width: 20px;
+      height: 20px;
+    }
+
+    .todo-list .checkbox-wrapper .checkmark {
+      display: none;
+    }
+
+    .todo-list [type="checkbox"]:checked + label .checkmark {
+      display: block;
+    }
+
+    .todo-list [type="checkbox"]:checked ~ span {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    .todo-list .remove-task {
+      display: flex;
+      padding: 2px;
+    }
+
+    .todo-list .remove-task svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    @media screen and (min-width: 600px) {
+      .todo-form {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-column-gap: 5px;
+      }
+
+      .todo-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg style="display: none;">
+    <symbol id="button" viewBox="0 0 315 120">
+      <path d="M...Z" fill="var(--red)" />
+    </symbol>
+    <symbol id="stat" viewBox="0 0 315 50">
+      <path d="M...Z" fill="var(--red)" />
+    </symbol>
+    <symbol id="checkbox_empty" viewBox="0 0 50 50">
+      <circle cx="25" cy="25" r="25" fill="#fff" stroke="#000" stroke-width="3"/>
+    </symbol>
+    <symbol id="checkmark" viewBox="0 0 50 50">
+      <polyline points="12,27 22,37 38,13" fill="none" stroke="#000" stroke-width="4"/>
+    </symbol>
+    <symbol id="close" viewBox="0 0 50 50">
+      <line x1="15" y1="15" x2="35" y2="35" stroke="#000" stroke-width="4"/>
+      <line x1="35" y1="15" x2="15" y2="35" stroke="#000" stroke-width="4"/>
+    </symbol>
+  </svg>
+
+  <div class="container">
+    <h1>Handmade TODO App</h1>
+    <form class="todo-form">
+      <div class="form-wrapper">
+        <input type="text" name="name" placeholder="What needs to be done?" />
+        <svg><use xlink:href="#button"></use></svg>
+      </div>
+      <button type="submit">
+        Add Task
+        <svg><use xlink:href="#button"></use></svg>
+      </button>
+    </form>
+    <ol class="todo-list"></ol>
+    <div class="todo-stats">
+      <div class="total-tasks">
+        Total: <span>0</span>
+        <svg><use xlink:href="#stat"></use></svg>
+      </div>
+      <div class="completed-tasks">
+        Completed: <span>0</span>
+        <svg><use xlink:href="#stat"></use></svg>
+      </div>
+      <div class="remaining-tasks">
+        Remaining: <span>0</span>
+        <svg><use xlink:href="#stat"></use></svg>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const todoForm = document.querySelector(".todo-form");
+    const todoList = document.querySelector(".todo-list");
+    const totalTasks = document.querySelector(".total-tasks span");
+    const completedTasks = document.querySelector(".completed-tasks span");
+    const remainingTasks = document.querySelector(".remaining-tasks span");
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    if (localStorage.getItem("tasks")) {
+      tasks.map((task) => {
+        createTask(task);
+      });
+    }
+
+    todoForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const input = this.name;
+      const inputValue = input.value;
+      if (inputValue != "") {
+        const task = {
+          id: new Date().getTime(),
+          name: inputValue,
+          isCompleted: false
+        };
+        tasks.push(task);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        createTask(task);
+        todoForm.reset();
+      }
+      input.focus();
+    });
+
+    todoList.addEventListener("click", (e) => {
+      if (
+        e.target.classList.contains("remove-task") ||
+        e.target.parentElement.classList.contains("remove-task")
+      ) {
+        const taskId = e.target.closest("li").id;
+        removeTask(taskId);
+      }
+    });
+
+    todoList.addEventListener("input", (e) => {
+      const taskId = e.target.closest("li").id;
+      updateTask(taskId, e.target);
+    });
+
+    todoList.addEventListener("keydown", function (e) {
+      if (e.keyCode === 13) {
+        e.preventDefault();
+      }
+    });
+
+    function createTask(task) {
+      const taskEl = document.createElement("li");
+      taskEl.setAttribute("id", task.id);
+      const taskElMarkup = `
+        <div class="checkbox-wrapper">
+          <input type="checkbox" id="${task.name}-${task.id}" name="tasks" ${task.isCompleted ? "checked" : ""}>
+          <label for="${task.name}-${task.id}">
+            <svg class="checkbox-empty">
+              <use xlink:href="#checkbox_empty"></use>
+            </svg>
+            <svg class="checkmark">
+              <use xlink:href="#checkmark"></use>
+            </svg>
+          </label>
+          <span ${!task.isCompleted ? "contenteditable" : ""}>${task.name}</span>
+        </div>
+        <button class="remove-task" title="Remove ${task.name} task">
+          <svg>
+            <use xlink:href="#close"></use>
+          </svg>
+        </button>
+      `;
+      taskEl.innerHTML = taskElMarkup;
+      todoList.appendChild(taskEl);
+      countTasks();
+    }
+
+    function removeTask(taskId) {
+      tasks = tasks.filter((task) => task.id !== parseInt(taskId));
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      document.getElementById(taskId).remove();
+      countTasks();
+    }
+
+    function updateTask(taskId, el) {
+      const task = tasks.find((task) => task.id === parseInt(taskId));
+      if (el.hasAttribute("contentEditable")) {
+        task.name = el.textContent;
+      } else {
+        const span = el.nextElementSibling.nextElementSibling;
+        task.isCompleted = !task.isCompleted;
+        if (task.isCompleted) {
+          span.removeAttribute("contenteditable");
+          el.setAttribute("checked", "");
+        } else {
+          el.removeAttribute("checked");
+          span.setAttribute("contenteditable", "");
+        }
+      }
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      countTasks();
+    }
+
+    function countTasks() {
+      totalTasks.textContent = tasks.length;
+      const completedTasksArray = tasks.filter((task) => task.isCompleted === true);
+      completedTasks.textContent = completedTasksArray.length;
+      remainingTasks.textContent = tasks.length - completedTasksArray.length;
+    }
+  </script>
+</body>
+</html>
